@@ -1,4 +1,4 @@
-﻿#include <inttypes.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -13,6 +13,10 @@
 # include <Windows.h>
 # include "pcs/openssl_aes.h"
 # include "pcs/openssl_md5.h"
+
+# define snprintf _snprintf
+# define vsnprintf _vsnprintf
+
 #else
 # include <unistd.h>
 # include <termios.h>
@@ -31,15 +35,17 @@
 #include "utils.h"
 #include "arg.h"
 #ifdef WIN32
-# include "utf8.h"
+# include "pcs/utf8.h"
+#ifndef __MINGW32__
 # define lseek _lseek
 # define fileno _fileno
 # define fseeko _fseeki64
 # define ftello _ftelli64
 #endif
+#endif
 #include "shell.h"
 
-#define USAGE "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36"
+#define USAGE "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
 #define TIMEOUT						60
 #define CONNECTTIMEOUT				10
 #define MAX_THREAD_NUM				100
@@ -1114,7 +1120,7 @@ static void unlock_for_upload(struct UploadState *us)
 
 #pragma endregion
 
-#pragma region 三个回调： 输入验证码、显示上传进度、写下载文件
+#pragma region 三个回调： 输入验证码, 显示上传进度, 写下载文件
 
 static int save_thread_states_to_file(FILE *pf, int64_t offset, struct DownloadThreadState *state_link)
 {
@@ -4878,8 +4884,7 @@ static int combin_with_remote_dir_files(ShellContext *context, rb_red_blk_tree *
 				if (info->isdir) {
 					if (check_local_dir_exist) {
 						rbn = RBExactQuery(rb, (void *)(info->path + skip));
-						meta = (MyMeta *)rbn->info;
-						if (meta->flag & FLAG_ON_LOCAL) {
+						if (rbn && ((meta = (MyMeta *)rbn->info)->flag & FLAG_ON_LOCAL)) {
 							if (combin_with_remote_dir_files(context, rb, info->path, recursive, skip, total_cnt, check_local_dir_exist)) {
 								pcs_filist_destroy(list); 
 								return -1;
@@ -6728,7 +6733,7 @@ int main(int argc, char *argv[])
 	ShellContext context = { 0 };
 	int rc = 0;
 	char *errmsg = NULL, *val = NULL;
-	setlocale(LC_ALL, "chs");
+	setlocale(LC_ALL, "");
 	app_name = filename(argv[0]);
 	if (parse_arg(&arg, argc, argv, u8_is_utf8_sys() ? NULL : mbs2utf8)) {
 		usage();

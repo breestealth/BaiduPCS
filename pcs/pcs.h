@@ -1,4 +1,4 @@
-﻿#ifndef _PCS_H
+#ifndef _PCS_H
 #define _PCS_H
 
 #include "pcs_defs.h"
@@ -9,9 +9,17 @@
 #include "pcs_slist.h"
 #include "pcs_utils.h"
 
-#define PCS_API_VERSION "v1.1.3"
+#define PCS_API_VERSION "v1.1.4"
 
 #define PCS_RAPIDUPLOAD_THRESHOLD (256 * 1024)
+
+#ifndef __out
+#define __out
+#endif
+
+#ifndef __in
+#define __in
+#endif
 
 typedef enum PcsOption {
 	PCS_OPTION_END = 0,
